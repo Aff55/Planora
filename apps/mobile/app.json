@@ -1,0 +1,58 @@
+{
+  "expo": {
+    "name": "Planora",
+    "slug": "planora",
+    "scheme": "planora",
+    "version": "1.0.0",
+    "orientation": "default",
+    "userInterfaceStyle": "automatic",
+    "icon": "./assets/icon.png",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.planora.app",
+      "buildNumber": "1"
+    },
+    "android": {
+      "package": "com.planora.app",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#EA580C"
+      },
+      "permissions": [
+        "POST_NOTIFICATIONS"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "defaultChannel": "planora-reminders",
+          "sounds": []
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 180,
+          "resizeMode": "contain",
+          "backgroundColor": "#f7f4ef",
+          "dark": {
+            "backgroundColor": "#101827"
+          }
+        }
+      ],
+      "expo-secure-store",
+      "expo-status-bar",
+      "expo-sharing",
+      "@react-native-community/datetimepicker"
+    ],
+    "extra": {
+      "apiUrl": "http://localhost:4000/api"
+    }
+  }
+}

@@ -1,0 +1,44 @@
+node_modules
+.next
+dist
+coverage
+*.tsbuildinfo
+
+# Generated Python trainer cache. The fine-tuning pipeline lives in its own
+# repository alongside this one; this is only a compiled cache that happened to
+# be written inside the API workspace.
+apps/api/unsloth_compiled_cache/
+__pycache__/
+*.bak
+.DS_Store
+Thumbs.db
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.expo/
+apps/mobile/.expo/
+apps/mobile/.eas/
+*.jks
+*.keystore
+*.p8
+*.p12
+*.mobileprovision
+*.apk
+*.aab
+*.ipa
+*.log
+
+# Coursework and project-writeup material is deliberately kept out of this
+# repository. It lives in ../Planora-FYP. This is an application repo: reports,
+# thesis drafts, agent prompts and run logs are not useful to anyone using or
+# reading Planora, so they are excluded rather than merely untracked.
+FYP-*.md
+*-ANSWERS.md
+*Thesis*.md
+*thesis*.md
+PROJECT_COMPLETE_RECORD.txt
+OVERNIGHT-REPORT.md
+MORNING-REPORT.md
+logs/

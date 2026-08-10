@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: planora-postgres
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5432:5432"
+    environment:
+      POSTGRES_USER: planora
+      POSTGRES_PASSWORD: planora
+      POSTGRES_DB: planora
+    volumes:
+      - planora-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U planora -d planora"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  redis:
+    image: redis:7-alpine
+    container_name: planora-redis
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6379:6379"
+    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning", "--protected-mode", "yes", "--requirepass", "planora-local-redis"]
+    volumes:
+      - planora-redis:/data
+
+volumes:
+  planora-postgres:
+  planora-redis:

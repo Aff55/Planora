@@ -1,0 +1,411 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  COMPLETED
+  DEFERRED
+}
+
+enum TaskCategory {
+  WORK
+  WELLBEING
+  PERSONAL
+  FITNESS
+  SOCIAL
+  FINANCE
+  OTHER
+}
+
+enum CalendarEventType {
+  TASK
+  ACTIVITY
+  HOLIDAY
+  BREAK
+  PERSONAL
+}
+
+enum MoodValue {
+  VERY_LOW
+  LOW
+  OKAY
+  GOOD
+  GREAT
+}
+
+enum SleepQuality {
+  POOR
+  FAIR
+  GOOD
+  EXCELLENT
+}
+
+enum ThemePreference {
+  SYSTEM
+  LIGHT
+  DARK
+}
+
+enum ExportFormat {
+  JSON
+  CSV
+}
+
+enum RecommendationType {
+  OVERDUE_TASK_REVIEW
+  LOW_WATER_INTAKE
+  POOR_SLEEP
+  HIGH_STRESS_LOW_MOOD
+  OVERWORK_WARNING
+  FOCUS_WINDOW
+  HABIT_RESTART
+}
+
+enum RecommendationFeedbackAction {
+  ACCEPTED
+  DISMISSED
+  SNOOZED
+}
+
+enum AIProvider {
+  LOCAL_RULES
+  OLLAMA
+  LLAMA_CPP
+  CLOUD_PLACEHOLDER
+}
+
+enum LifeStage {
+  STUDENT
+  WORKING_PROFESSIONAL
+  SELF_EMPLOYED
+  CAREGIVER
+  RETIRED
+  BETWEEN_ROLES
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum ActivityLevel {
+  SEDENTARY
+  LIGHTLY_ACTIVE
+  MODERATELY_ACTIVE
+  VERY_ACTIVE
+  ATHLETE
+}
+
+enum ImprovementStyle {
+  GENTLE
+  BALANCED
+  AMBITIOUS
+}
+
+model User {
+  id                 String                   @id @default(cuid())
+  email              String                   @unique
+  name               String
+  passwordHash       String
+  timezone           String                   @default("UTC")
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
+  settings           Settings?
+  personalProfile    PersonalProfile?
+  tasks              Task[]
+  activities         Activity[]
+  moodLogs           MoodLog[]
+  sleepLogs          SleepLog[]
+  waterLogs          WaterLog[]
+  journalEntries     JournalEntry[]
+  recommendations    Recommendation[]
+  habits             Habit[]
+  calendarEvents     CalendarEvent[]
+  aiInteractions     AIInteraction[]
+  modelEvents        ModelEvent[]
+  feedback           RecommendationFeedback[]
+  memories           EmbeddingMemory[]
+  sessions           AuthSession[]
+}
+
+model PersonalProfile {
+  id                     String           @id @default(cuid())
+  userId                 String           @unique
+  lifeStage              LifeStage?
+  profession             String?
+  heightCm               Float?
+  weightKg               Float?
+  activityLevel          ActivityLevel?
+  interests              String[]         @default([])
+  primaryGoals           String[]         @default([])
+  preferredWakeTime      String?
+  preferredSleepTime     String?
+  improvementStyle       ImprovementStyle @default(BALANCED)
+  useForPersonalization  Boolean          @default(false)
+  allowAnonymousTraining Boolean          @default(false)
+  allowProductAnalytics  Boolean          @default(false)
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+  user                   User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AuthSession {
+  id         String    @id @default(cuid())
+  userId     String
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime  @default(now())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt])
+  @@index([expiresAt])
+}
+
+model Settings {
+  id                    String          @id @default(cuid())
+  userId                String          @unique
+  theme                 ThemePreference @default(SYSTEM)
+  notificationEmail     Boolean         @default(false)
+  notificationPush      Boolean         @default(false)
+  privacyMode           Boolean         @default(false)
+  aiPersonalization     Boolean         @default(true)
+  exportFormat          ExportFormat    @default(JSON)
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  user                  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Task {
+  id            String       @id @default(cuid())
+  userId        String
+  title         String
+  description   String?
+  notes         String?
+  priority      TaskPriority @default(MEDIUM)
+  status        TaskStatus   @default(TODO)
+  category      TaskCategory @default(OTHER)
+  dueDate       DateTime?
+  progress      Int          @default(0)
+  color         String?
+  recurringRule String?
+  order         Int          @default(0)
+  completedAt   DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subtasks      Subtask[]
+  events        CalendarEvent[]
+
+  @@index([userId, status])
+  @@index([userId, dueDate])
+}
+
+model Subtask {
+  id        String   @id @default(cuid())
+  taskId    String
+  title     String
+  completed Boolean  @default(false)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId, order])
+}
+
+model Activity {
+  id          String       @id @default(cuid())
+  userId      String
+  title       String
+  category    TaskCategory @default(OTHER)
+  minutes     Int          @default(0)
+  occurredAt  DateTime     @default(now())
+  notes       String?
+  createdAt   DateTime     @default(now())
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, occurredAt])
+}
+
+model MoodLog {
+  id         String    @id @default(cuid())
+  userId     String
+  mood       MoodValue
+  stress     Int
+  energy     Int
+  reflection String?
+  loggedAt   DateTime  @default(now())
+  createdAt  DateTime  @default(now())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, loggedAt])
+}
+
+model SleepLog {
+  id        String       @id @default(cuid())
+  userId    String
+  hours     Float
+  quality   SleepQuality
+  notes     String?
+  loggedAt  DateTime     @default(now())
+  createdAt DateTime     @default(now())
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, loggedAt])
+}
+
+model WaterLog {
+  id        String   @id @default(cuid())
+  userId    String
+  amountMl  Int
+  loggedAt  DateTime @default(now())
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, loggedAt])
+}
+
+model JournalEntry {
+  id        String     @id @default(cuid())
+  userId    String
+  title     String
+  body      String
+  mood      MoodValue?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model Recommendation {
+  id          String             @id @default(cuid())
+  userId      String
+  key         String
+  type        RecommendationType
+  title       String
+  body        String
+  actionLabel String?
+  actionUrl   String?
+  active      Boolean            @default(true)
+  metadata    Json?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  feedback    RecommendationFeedback[]
+
+  @@index([userId, active])
+  @@index([userId, type])
+  @@unique([userId, key])
+}
+
+model RecommendationFeedback {
+  id               String                       @id @default(cuid())
+  userId           String
+  recommendationId String
+  action           RecommendationFeedbackAction
+  note             String?
+  createdAt        DateTime                     @default(now())
+  updatedAt        DateTime                     @updatedAt
+  user             User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recommendation   Recommendation               @relation(fields: [recommendationId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([recommendationId])
+  @@unique([userId, recommendationId])
+}
+
+model Habit {
+  id          String       @id @default(cuid())
+  userId      String
+  key         String?
+  title       String
+  category    TaskCategory @default(WELLBEING)
+  cadence     String       @default("daily")
+  streak      Int          @default(0)
+  longestStreak Int        @default(0)
+  occurrences  Int         @default(0)
+  confidence   Float       @default(0)
+  source       String      @default("manual")
+  lastDoneAt  DateTime?
+  lastObservedAt DateTime?
+  active      Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, active])
+  @@unique([userId, key])
+}
+
+model CalendarEvent {
+  id          String            @id @default(cuid())
+  userId      String
+  taskId      String?
+  title       String
+  description String?
+  type        CalendarEventType @default(PERSONAL)
+  startAt     DateTime
+  endAt       DateTime
+  color       String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  task        Task?             @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  @@index([userId, startAt])
+  @@index([taskId])
+}
+
+model AIInteraction {
+  id        String     @id @default(cuid())
+  userId    String
+  provider  AIProvider @default(LOCAL_RULES)
+  prompt    String
+  response  String
+  metadata  Json?
+  createdAt DateTime   @default(now())
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model ModelEvent {
+  id        String   @id @default(cuid())
+  userId    String
+  eventType String
+  payload   Json
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, eventType])
+  @@index([userId, createdAt])
+}
+
+model EmbeddingMemory {
+  id          String   @id @default(cuid())
+  userId      String
+  sourceType  String
+  sourceId    String
+  content     String
+  embedding   Json?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, sourceType, sourceId])
+  @@index([userId, sourceType])
+}

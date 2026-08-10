@@ -1,0 +1,36 @@
+{
+  "name": "@planora/mobile",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.ts",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "doctor": "expo-doctor"
+  },
+  "dependencies": {
+    "@expo/vector-icons": "^15.1.1",
+    "@planora/shared": "1.0.0",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "@react-native-community/datetimepicker": "9.1.0",
+    "expo": "~57.0.8",
+    "expo-constants": "~57.0.7",
+    "expo-device": "~57.0.1",
+    "expo-file-system": "~57.0.1",
+    "expo-linear-gradient": "~57.0.1",
+    "expo-notifications": "~57.0.7",
+    "expo-secure-store": "~57.0.1",
+    "expo-sharing": "~57.0.7",
+    "expo-splash-screen": "~57.0.5",
+    "expo-status-bar": "~57.0.1",
+    "react": "19.2.3",
+    "react-native": "0.86.0",
+    "typescript": "~6.0.3"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "expo-doctor": "^1.20.1"
+  }
+}

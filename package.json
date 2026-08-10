@@ -1,0 +1,48 @@
+{
+  "name": "planora",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Planora is a private, adaptive life-planning, wellbeing, calendar, and AI companion.",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm.cmd --workspace @planora/shared run build && concurrently -n api,web -c orange,cyan \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "npm.cmd --workspace @planora/api run dev",
+    "dev:web": "npm.cmd --workspace @planora/web run dev",
+    "dev:mobile": "npm.cmd --workspace @planora/mobile run start",
+    "android": "npm.cmd --workspace @planora/mobile run android",
+    "ios": "npm.cmd --workspace @planora/mobile run ios",
+    "build": "npm.cmd --workspace @planora/shared run build && npm.cmd --workspace @planora/api run build && npm.cmd --workspace @planora/web run build",
+    "typecheck": "npm.cmd --workspace @planora/shared run build && npm.cmd --workspace @planora/api run typecheck && npm.cmd --workspace @planora/web run typecheck && npm.cmd --workspace @planora/mobile run typecheck",
+    "test": "npm.cmd run test --workspaces --if-present",
+    "lint": "npm.cmd run lint --workspaces --if-present",
+    "verify:live": "node scripts/release-smoke.mjs",
+    "db:generate": "npm.cmd --workspace @planora/api run prisma:generate",
+    "db:migrate": "npm.cmd --workspace @planora/api run prisma:migrate",
+    "db:seed": "npm.cmd --workspace @planora/api run seed"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "overrides": {
+    "postcss": "^8.5.10",
+    "sharp": "$sharp"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "prettier": "^3.6.2",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "sharp": "0.35.3",
+    "typescript": "~6.0.3"
+  },
+  "allowScripts": {
+    "@prisma/client@6.19.3": true,
+    "@prisma/engines@6.19.3": true,
+    "esbuild@0.28.1": true,
+    "prisma@6.19.3": true,
+    "unrs-resolver@1.12.2": true
+  }
+}
