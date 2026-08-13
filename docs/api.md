@@ -69,6 +69,7 @@ Recommendation feedback is idempotent. Active recommendations are bounded and re
 - `GET /api/companion/history`
 - `POST /api/companion/chat`
 - `GET /api/ranker/status`
+- `GET /api/ranker/patterns`
 - `GET /api/ranker/training-manifest?limit=500`
 - `GET /api/profile`
 - `PUT /api/profile`

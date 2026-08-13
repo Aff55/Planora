@@ -33,7 +33,7 @@ Semantic retrieval currently uses deterministic local vector hashing, so no paid
 
 Recommendations combine explicit product rules with feedback-weighted ranking. They account for task urgency, calendar load, food balance, fitness recovery/rotation, social contact, outdoor time, water, sleep, mood, stress, and stale habits. Generation is bounded, cooldown-aware, and idempotent.
 
-The adaptive ranker records structured events and recommendation feedback for per-user adaptation and offline inspection. Version 2 also measures active days, app streaks, changing engagement readiness, and broad inferred routines. It does not silently retrain the Ollama base model. Training manifests require a separate opt-in and pseudonymize the participant while removing identity, free text, height, and weight.
+The adaptive ranker is an online linear scorer over the user's own records — named feature weights adjusted by accept/dismiss feedback within fixed bounds, with no network and no gradients. It records structured events and recommendation feedback for per-user adaptation and offline inspection. Version 2 also measures active days, app streaks, changing engagement readiness, and broad inferred routines. It does not silently retrain the Ollama base model. Training manifests require a separate opt-in and pseudonymize the participant while removing identity, free text, height, and weight.
 
 ## Safety
 
