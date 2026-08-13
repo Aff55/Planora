@@ -185,13 +185,6 @@ export function ProfileScreen({
           onValueChange={(allowAnonymousTraining) => setDraft({ ...draft, allowAnonymousTraining })}
         />
         <Text style={[styles.hint, { color: palette.muted }]}>Exports omit identity, free text, height, and weight. Off by default.</Text>
-        <ToggleRow
-          palette={palette}
-          label="Anonymous product analytics"
-          value={draft.allowProductAnalytics}
-          onValueChange={(allowProductAnalytics) => setDraft({ ...draft, allowProductAnalytics })}
-        />
-        <Text style={[styles.hint, { color: palette.muted }]}>Consent is stored, but no external analytics service is connected.</Text>
       </Card>
       <Card palette={palette}>
         <SectionTitle palette={palette} title="Your control" />

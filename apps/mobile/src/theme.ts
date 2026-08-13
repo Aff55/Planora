@@ -60,8 +60,7 @@ export const defaultPersonalProfile: PersonalProfile = {
   preferredSleepTime: null,
   improvementStyle: "BALANCED",
   useForPersonalization: false,
-  allowAnonymousTraining: false,
-  allowProductAnalytics: false
+  allowAnonymousTraining: false
 };
 
 export const quickActivities = [

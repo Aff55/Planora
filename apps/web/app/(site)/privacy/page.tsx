@@ -66,9 +66,10 @@ export default function PrivacyPage() {
         </div>
         <Panel className="mt-6">
           <p className="text-callout leading-relaxed text-muted">
-            The analytics switch deserves a specific note, because a stored preference that does nothing is exactly the
-            sort of thing that quietly becomes something later. Today it is recorded and read by nothing: this build has
-            no analytics service connected, and no code path sends usage data anywhere.
+            Every switch listed above changes what the app does. There used to be a fourth — an analytics preference
+            that was stored, shown, and read by nothing. A control that does nothing is exactly the sort of thing that
+            quietly becomes something later, so it was removed rather than left to accumulate a meaning nobody agreed
+            to. No analytics service is connected to this build, and no code path sends usage data anywhere.
           </p>
         </Panel>
       </section>

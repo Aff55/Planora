@@ -48,8 +48,7 @@ const emptyProfile: PersonalProfile = {
   preferredSleepTime: null,
   improvementStyle: "BALANCED",
   useForPersonalization: true,
-  allowAnonymousTraining: false,
-  allowProductAnalytics: false
+  allowAnonymousTraining: false
 };
 
 export function Onboarding({ name, onDone }: { name: string; onDone: () => void }) {

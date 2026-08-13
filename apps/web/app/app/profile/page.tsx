@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { BarChart3, Brain, Eraser, Sparkles } from "lucide-react";
+import { Brain, Eraser, Sparkles } from "lucide-react";
 import { activityLevels, improvementStyles, lifeStages } from "@planora/shared";
 import { PageHeader } from "../../../components/app/PageHeader";
 import { Group, Section } from "../../../components/ui/surfaces";
@@ -25,8 +25,7 @@ const emptyProfile: PersonalProfile = {
   preferredSleepTime: null,
   improvementStyle: "BALANCED",
   useForPersonalization: false,
-  allowAnonymousTraining: false,
-  allowProductAnalytics: false
+  allowAnonymousTraining: false
 };
 
 /** Mirrors `profileCompleteness` in the API so the figure means the same thing. */
@@ -266,13 +265,6 @@ export default function ProfilePage() {
               description="Allows a pseudonymous export of structured events. Identity, free text, height and weight are stripped, and the participant id is hashed."
               checked={profile.allowAnonymousTraining}
               onChange={(value) => setProfile({ ...profile, allowAnonymousTraining: value })}
-            />
-            <Toggle
-              icon={BarChart3}
-              label="Anonymous product analytics"
-              description="Stored as a preference only. No analytics service is connected to this build, so nothing is collected either way."
-              checked={profile.allowProductAnalytics}
-              onChange={(value) => setProfile({ ...profile, allowProductAnalytics: value })}
             />
           </Group>
         </Section>

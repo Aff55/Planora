@@ -87,8 +87,7 @@ describe("shared validators", () => {
     expect(profile).toMatchObject({
       improvementStyle: "BALANCED",
       useForPersonalization: false,
-      allowAnonymousTraining: false,
-      allowProductAnalytics: false
+      allowAnonymousTraining: false
     });
     expect(() => personalProfileSchema.parse({ heightCm: 30 })).toThrow();
     expect(() => personalProfileSchema.parse({ preferredSleepTime: "25:00" })).toThrow();

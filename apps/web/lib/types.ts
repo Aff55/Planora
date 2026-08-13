@@ -4,7 +4,7 @@
  * `@planora/shared` is the source of truth for enums and for the *input*
  * schemas a client sends. It does not describe what the server sends back —
  * persisted rows carry ids and timestamps, and aggregates like the dashboard
- * and the neural status have no schema at all. Those are declared here.
+ * and the ranker status have no schema at all. Those are declared here.
  *
  * Every enum-valued field below is derived from a shared tuple rather than
  * respelled, so adding a category or mood in `packages/shared` immediately
@@ -80,7 +80,6 @@ export type PersonalProfile = {
   improvementStyle: ImprovementStyle;
   useForPersonalization: boolean;
   allowAnonymousTraining: boolean;
-  allowProductAnalytics: boolean;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -268,7 +267,7 @@ export type PatternReport = {
   inconclusive: Array<{ key: string; reason: string }>;
 };
 
-export type NeuralEngineStatus = {
+export type AdaptiveRankerStatus = {
   engine: "LOCAL_ONLINE_RANKER";
   version: string;
   learningMode: "user_scoped_online" | "disabled";

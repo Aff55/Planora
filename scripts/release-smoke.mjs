@@ -88,8 +88,7 @@ try {
       preferredSleepTime: "23:00",
       improvementStyle: "BALANCED",
       useForPersonalization: true,
-      allowAnonymousTraining: true,
-      allowProductAnalytics: false
+      allowAnonymousTraining: true
     }
   });
   assert(savedProfile.data.profile?.useForPersonalization, "Profile personalization consent was not persisted");

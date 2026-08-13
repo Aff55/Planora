@@ -135,14 +135,6 @@ export const CONSENT_CONTROLS = [
     turnsOff:
       "The training export refuses to generate. With it on, the export still strips identity, free text, height and weight, and hashes the participant id.",
     code: "PersonalProfile.allowAnonymousTraining"
-  },
-  {
-    name: "Anonymous product analytics",
-    where: "Profile",
-    defaultState: "Off",
-    turnsOff:
-      "Nothing, today. The preference is stored, but no analytics service is connected to this build — so nothing is collected either way.",
-    code: "PersonalProfile.allowProductAnalytics"
   }
 ] as const;
 

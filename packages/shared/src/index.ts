@@ -112,8 +112,7 @@ export const personalProfileSchema = z.object({
   preferredSleepTime: optionalClockTime,
   improvementStyle: z.enum(improvementStyles).default("BALANCED"),
   useForPersonalization: z.boolean().default(false),
-  allowAnonymousTraining: z.boolean().default(false),
-  allowProductAnalytics: z.boolean().default(false)
+  allowAnonymousTraining: z.boolean().default(false)
 });
 
 export const accountDeleteSchema = z.object({

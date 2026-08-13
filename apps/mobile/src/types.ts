@@ -38,7 +38,6 @@ export type PersonalProfile = {
   improvementStyle: "GENTLE" | "BALANCED" | "AMBITIOUS";
   useForPersonalization: boolean;
   allowAnonymousTraining: boolean;
-  allowProductAnalytics: boolean;
 };
 
 export type Task = {
@@ -188,7 +187,7 @@ export type WellbeingSummary = {
   safetyNote: string;
 };
 
-export type NeuralEngineStatus = {
+export type AdaptiveRankerStatus = {
   engine: "LOCAL_ONLINE_RANKER";
   version: string;
   learningMode: "user_scoped_online";
