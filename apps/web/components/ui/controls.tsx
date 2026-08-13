@@ -177,16 +177,25 @@ export function Toggle({
         disabled={disabled}
         onClick={() => onChange(!checked)}
         className={clsx(
+          // The outline is a ring rather than a border so it does not consume
+          // layout: a border exists only in the off state, which would shift
+          // the thumb by a pixel every time the switch is toggled.
           "focus-ring relative mt-0.5 h-7 w-12 shrink-0 rounded-full transition-colors duration-state",
-          checked ? "bg-accent-strong" : "bg-sunken border border-line",
+          checked ? "bg-accent-strong" : "bg-sunken ring-1 ring-inset ring-line",
           disabled && "cursor-not-allowed"
         )}
       >
         <span
           className={clsx(
-            "absolute top-1 size-5 rounded-full bg-white shadow-sm transition-transform duration-state ease-enter",
-            checked ? "translate-x-6" : "translate-x-1",
-            !checked && "bg-muted"
+            // `left-1 top-1` anchors the thumb explicitly. Without a horizontal
+            // anchor an absolutely positioned element falls back to its static
+            // position, which put the thumb outside the track entirely.
+            //
+            // Track 48 wide, thumb 20, inset 4 each side, so the travel is
+            // 48 - 4 - 4 - 20 = 20px, which is exactly translate-x-5. Keep
+            // these four numbers in step if any of them changes.
+            "absolute left-1 top-1 size-5 rounded-full shadow-sm transition-transform duration-state ease-enter",
+            checked ? "translate-x-5 bg-white" : "translate-x-0 bg-muted"
           )}
         />
       </button>
