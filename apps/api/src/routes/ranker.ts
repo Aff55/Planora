@@ -1,13 +1,13 @@
 import { Router } from "express";
 import { asyncHandler } from "../lib/http.js";
 import { type AuthRequest, requireAuth } from "../middleware/auth.js";
-import { buildTrainingManifest, getNeuralEngineStatus } from "../services/neuralEngine.js";
+import { buildTrainingManifest, getAdaptiveRankerStatus } from "../services/adaptiveRanker.js";
 import { getPatternReport } from "../services/patterns.js";
 
-export const neuralRouter = Router();
-neuralRouter.use(requireAuth);
+export const rankerRouter = Router();
+rankerRouter.use(requireAuth);
 
-neuralRouter.get(
+rankerRouter.get(
   "/patterns",
   asyncHandler(async (req, res) => {
     const report = await getPatternReport((req as AuthRequest).user.id);
@@ -15,15 +15,15 @@ neuralRouter.get(
   })
 );
 
-neuralRouter.get(
+rankerRouter.get(
   "/status",
   asyncHandler(async (req, res) => {
-    const status = await getNeuralEngineStatus((req as AuthRequest).user.id);
+    const status = await getAdaptiveRankerStatus((req as AuthRequest).user.id);
     res.json({ status });
   })
 );
 
-neuralRouter.get(
+rankerRouter.get(
   "/training-manifest",
   asyncHandler(async (req, res) => {
     const rawLimit = Number(req.query.limit ?? 500);

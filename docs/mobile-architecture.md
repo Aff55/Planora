@@ -13,7 +13,7 @@ Planora Mobile is a native Expo/React Native client. It consumes the same stable
 
 - Keep heavy LLM inference on a PC, local server, or backend by default.
 - Make on-device inference optional and lightweight.
-- Export small ranking and time-series models to Core ML or TensorFlow Lite when the neural engine matures.
+- Export small ranking and time-series models to Core ML or TensorFlow Lite when the adaptive ranker matures.
 
 ## UI Guidance
 

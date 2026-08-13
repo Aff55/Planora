@@ -69,7 +69,7 @@ flowchart LR
   Services --> DB["PostgreSQL"]
   Services --> Cache["Redis"]
   Services --> LocalAI["Local AI Provider"]
-  Services --> Neural["Neural Engine Data Collection"]
+  Services --> Ranker["Adaptive Ranker Data Collection"]
 ```
 
 ## Sequence Diagram

@@ -174,10 +174,10 @@ try {
   const companionContext = await request("/companion/context");
   assert(companionContext.data.context?.profile?.profession === "Release tester", "Companion context did not include the consented profile");
 
-  const neuralStatus = await request("/neural/status");
-  assert(typeof neuralStatus.data.status?.engagement?.score === "number", "Neural status did not include engagement signals");
-  assert(Array.isArray(neuralStatus.data.status?.detectedHabits), "Neural status did not include detected routines");
-  const trainingManifest = await request("/neural/training-manifest?limit=50");
+  const rankerStatus = await request("/ranker/status");
+  assert(typeof rankerStatus.data.status?.engagement?.score === "number", "Ranker status did not include engagement signals");
+  assert(Array.isArray(rankerStatus.data.status?.detectedHabits), "Ranker status did not include detected routines");
+  const trainingManifest = await request("/ranker/training-manifest?limit=50");
   assert(trainingManifest.data.manifest?.eligible === true, "Training manifest did not honor anonymous training consent");
   assert(!("userId" in trainingManifest.data.manifest), "Training manifest exposed the raw user id");
 
@@ -220,7 +220,7 @@ try {
       "live dashboard and recommendations",
       `guarded companion provider: ${companion.data.provider}`,
       `open-ended companion provider: ${modelCompanion.data.provider}`,
-      "profile-aware context and neural status",
+      "profile-aware context and ranker status",
       "pseudonymous training manifest",
       "account export",
       "logout revocation and re-login",

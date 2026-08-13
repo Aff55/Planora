@@ -28,6 +28,6 @@ Planora uses a normalized PostgreSQL schema through Prisma.
 - `EmbeddingMemory`: local/free embedding adapter storage for retrieval.
 - `Recommendation`: rule-generated recommendation records.
 - `RecommendationFeedback`: accepted, dismissed, or snoozed feedback.
-- `ModelEvent`: structured training data for future neural ranking and prediction.
+- `ModelEvent`: structured training data for the adaptive ranker.
 - `PersonalProfile`: optional user-provided routine, role, goal, interest, body, coaching-style, and consent fields.
 - `Habit`: manual or inferred routine state with current/longest streak, occurrence count, and confidence.

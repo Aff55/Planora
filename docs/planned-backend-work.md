@@ -13,7 +13,7 @@ against endpoints that already exist and are fully live:
 | Drag to reorder tasks | **Live** | `POST /tasks/reorder` |
 | Calendar import (`.ics`) | **Live** | parsed in-browser, created via `POST /calendar` |
 | Voice capture | **Live** | browser SpeechRecognition, created via `POST /activities` |
-| Insight report, exportable to PDF | **Live** | `GET /dashboard`, `/wellbeing/summary`, `/neural/*`, browser print |
+| Insight report, exportable to PDF | **Live** | `GET /dashboard`, `/wellbeing/summary`, `/ranker/*`, browser print |
 | Focus mode | **Live** | `GET /dashboard`, `PATCH /tasks/:id/complete` |
 | Data explorer | **Live** | existing list endpoints plus `GET /auth/export` |
 | **Encrypted device sync** | **Not connected** | — see below |

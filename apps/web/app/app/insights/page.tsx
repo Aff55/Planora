@@ -27,7 +27,7 @@ import { apiRequest } from "../../../lib/api";
 import { formatMinutes, label as toLabel, percent } from "../../../lib/format";
 import { useMessages } from "../../../lib/messages";
 import { useResource } from "../../../lib/useResource";
-import type { DashboardData, NeuralEngineStatus, PatternKind, PatternReport, Recommendation } from "../../../lib/types";
+import type { DashboardData, AdaptiveRankerStatus, PatternKind, PatternReport, Recommendation } from "../../../lib/types";
 
 const patternIcon: Record<PatternKind, LucideIcon> = {
   weekday_rhythm: CalendarDays,
@@ -49,8 +49,8 @@ export default function InsightsPage() {
   const { guard } = useMessages();
   const dashboard = useResource<DashboardData>("/dashboard");
   const recommendations = useResource<{ recommendations: Recommendation[] }>("/recommendations");
-  const neural = useResource<{ status: NeuralEngineStatus }>("/neural/status");
-  const patterns = useResource<{ report: PatternReport }>("/neural/patterns");
+  const ranker = useResource<{ status: AdaptiveRankerStatus }>("/ranker/status");
+  const patterns = useResource<{ report: PatternReport }>("/ranker/patterns");
 
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState<string | null>(null);
@@ -58,7 +58,7 @@ export default function InsightsPage() {
   if (dashboard.status === "loading" && patterns.status === "loading") return <SkeletonPage metrics={3} rows={5} />;
 
   const report = patterns.data?.report ?? null;
-  const engine = neural.data?.status ?? null;
+  const engine = ranker.data?.status ?? null;
   const recs = recommendations.data?.recommendations ?? [];
   const disabled = engine?.learningMode === "disabled";
 
@@ -75,7 +75,7 @@ export default function InsightsPage() {
     setBusy(id);
     await guard(async () => {
       await apiRequest(`/recommendations/${id}/feedback`, { method: "POST", body: { action } });
-      await Promise.all([recommendations.reload(), neural.reload(), dashboard.reload()]);
+      await Promise.all([recommendations.reload(), ranker.reload(), dashboard.reload()]);
     });
     setBusy(null);
   }

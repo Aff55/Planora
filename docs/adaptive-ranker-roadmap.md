@@ -1,6 +1,6 @@
-# Neural Engine
+# Adaptive Ranker
 
-Planora now includes a local user-scoped learning engine at `apps/api/src/services/neuralEngine.ts`.
+Planora now includes a local user-scoped learning engine at `apps/api/src/services/adaptiveRanker.ts`.
 
 ## Current Phase
 
@@ -22,12 +22,12 @@ The engine uses:
 
 ## API
 
-- `GET /api/neural/status`: returns confidence, sample counts, learned weights, focus window, engagement, active-day streaks, inferred routines, and next improvement suggestions.
-- `GET /api/neural/training-manifest?limit=500`: exports pseudonymous structured events and feedback rows only after separate profile consent.
+- `GET /api/ranker/status`: returns confidence, sample counts, learned weights, focus window, engagement, active-day streaks, inferred routines, and next improvement suggestions.
+- `GET /api/ranker/training-manifest?limit=500`: exports pseudonymous structured events and feedback rows only after separate profile consent.
 
 ## Recommendation Ranking
 
-Recommendation candidates still start with rule-generated safety and planning logic. The neural engine then applies a learned score using:
+Recommendation candidates still start with rule-generated safety and planning logic. The ranker then applies a learned score using:
 
 - base recommendation weight
 - user feedback by recommendation type
@@ -40,4 +40,4 @@ Recommendation candidates still start with rule-generated safety and planning lo
 - Core ML for iOS
 - TensorFlow Lite for Android and lightweight on-device inference
 
-Keep the neural layer small and interpretable until enough high-quality feedback exists for a heavier model.
+Keep the ranker small and interpretable until enough high-quality feedback exists for a heavier model.

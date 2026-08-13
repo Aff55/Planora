@@ -1,7 +1,7 @@
 import { prisma } from "../lib/prisma.js";
 import { getDayRange, getFutureDayBoundary, getRollingDayRange } from "../lib/dateTime.js";
 import { getAiDataPolicy } from "./aiPolicy.js";
-import { rankRecommendationCandidates } from "./neuralEngine.js";
+import { rankRecommendationCandidates } from "./adaptiveRanker.js";
 import { KeyedSingleflight } from "../lib/singleflight.js";
 
 type Candidate = {
@@ -244,8 +244,8 @@ async function generateRecommendationsOnce(userId: string) {
   const rankedCandidates = policy.aiPersonalization
     ? await rankRecommendationCandidates(userId, eligible)
     : eligible
-        .map((candidate) => ({ ...candidate, neuralScore: candidate.priority ?? 50 }))
-        .sort((a, b) => b.neuralScore - a.neuralScore);
+        .map((candidate) => ({ ...candidate, rankerScore: candidate.priority ?? 50 }))
+        .sort((a, b) => b.rankerScore - a.rankerScore);
   const activeKeys = rankedCandidates.map(recommendationKey);
   const staleCutoff = new Date(now.getTime() - 30 * 86_400_000);
   const currentPolicy = await getAiDataPolicy(userId);
@@ -255,13 +255,13 @@ async function generateRecommendationsOnce(userId: string) {
 
   await prisma.$transaction(async (tx) => {
     for (const candidate of rankedCandidates) {
-      const { priority: _priority, neuralScore: _neuralScore, ...recommendationData } = candidate;
+      const { priority: _priority, rankerScore: _rankerScore, ...recommendationData } = candidate;
       const key = recommendationKey(candidate);
       const metadata = {
         ...(recommendationData.metadata ?? {}),
         ranking: {
           engine: policy.aiPersonalization ? "LOCAL_ONLINE_RANKER" : "LOCAL_RULES",
-          score: candidate.neuralScore
+          score: candidate.rankerScore
         }
       };
       await tx.recommendation.upsert({

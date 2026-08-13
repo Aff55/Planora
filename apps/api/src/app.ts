@@ -12,7 +12,7 @@ import { activitiesRouter } from "./routes/activities.js";
 import { calendarRouter } from "./routes/calendar.js";
 import { companionRouter } from "./routes/companion.js";
 import { dashboardRouter } from "./routes/dashboard.js";
-import { neuralRouter } from "./routes/neural.js";
+import { rankerRouter } from "./routes/ranker.js";
 import { profileRouter } from "./routes/profile.js";
 import { recommendationsRouter } from "./routes/recommendations.js";
 import { searchRouter } from "./routes/search.js";
@@ -102,7 +102,7 @@ export function createApp() {
   app.use("/api/activities", activitiesRouter);
   app.use("/api/calendar", calendarRouter);
   app.use("/api/recommendations", recommendationsRouter);
-  app.use("/api/neural", neuralRouter);
+  app.use("/api/ranker", rankerRouter);
   app.use("/api/profile", profileRouter);
   app.use("/api/companion", companionRouter);
   app.use("/api/search", searchRouter);

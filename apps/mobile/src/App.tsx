@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { apiRequest, currentMonthKey, defaultApiUrl, normalizeApiUrl } from "./api";
 import { cancelPlanoraNotifications, getNotificationPermission, scheduleDailyBrief, syncPlanoraNotifications } from "./notifications";
-import type { ActivityEntry, AIHistoryItem, CalendarEvent, CompanionContext, CompanionStatus, CurrentUser, DashboardData, NeuralEngineStatus, PageInfo, PersonalProfile, Recommendation, SettingsShape, Task, WellbeingSummary } from "./types";
+import type { ActivityEntry, AIHistoryItem, CalendarEvent, CompanionContext, CompanionStatus, CurrentUser, DashboardData, AdaptiveRankerStatus, PageInfo, PersonalProfile, Recommendation, SettingsShape, Task, WellbeingSummary } from "./types";
 import { ScreenName, tokenKey, pendingLogoutTokenKey, apiUrlKey, themeKey, defaultSettings, notificationScreens, defaultPersonalProfile, colors } from "./theme";
 import { resolveDark, shiftMonthKey } from "./utils";
 import { AppFrame, TabBar, IconButton, Notice, FadeIn } from "./ui";
@@ -52,7 +52,7 @@ export default function App() {
   const [activitiesRecent, setActivitiesRecent] = useState<ActivityEntry[]>([]);
   const [wellbeing, setWellbeing] = useState<WellbeingSummary | null>(null);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
-  const [neural, setNeural] = useState<NeuralEngineStatus | null>(null);
+  const [ranker, setRanker] = useState<AdaptiveRankerStatus | null>(null);
   const [profile, setProfile] = useState<PersonalProfile>(defaultPersonalProfile);
   const [companionStatus, setCompanionStatus] = useState<CompanionStatus | null>(null);
   const [companionContext, setCompanionContext] = useState<CompanionContext | null>(null);
@@ -84,7 +84,7 @@ export default function App() {
           nextActivities,
           nextWellbeing,
           nextRecommendations,
-          nextNeural,
+          nextRanker,
           nextProfile,
           nextStatus,
           nextContext,
@@ -96,7 +96,7 @@ export default function App() {
           apiRequest<{ today: ActivityEntry[]; recent: ActivityEntry[] }>(nextApiUrl, "/activities", { token: nextToken }),
           apiRequest<WellbeingSummary>(nextApiUrl, "/wellbeing/summary", { token: nextToken }),
           apiRequest<{ recommendations: Recommendation[] }>(nextApiUrl, "/recommendations", { token: nextToken }),
-          apiRequest<{ status: NeuralEngineStatus }>(nextApiUrl, "/neural/status", { token: nextToken }),
+          apiRequest<{ status: AdaptiveRankerStatus }>(nextApiUrl, "/ranker/status", { token: nextToken }),
           apiRequest<{ profile: PersonalProfile | null }>(nextApiUrl, "/profile", { token: nextToken }),
           apiRequest<CompanionStatus>(nextApiUrl, "/companion/status", { token: nextToken }),
           apiRequest<{ context: CompanionContext | null }>(nextApiUrl, "/companion/context", { token: nextToken }),
@@ -111,7 +111,7 @@ export default function App() {
         setActivitiesRecent(nextActivities.recent);
         setWellbeing(nextWellbeing);
         setRecommendations(nextRecommendations.recommendations);
-        setNeural(nextNeural.status);
+        setRanker(nextRanker.status);
         setProfile({ ...defaultPersonalProfile, ...(nextProfile.profile ?? {}) });
         setCompanionStatus(nextStatus);
         setCompanionContext(nextContext.context);
@@ -278,7 +278,7 @@ export default function App() {
     setActivitiesRecent([]);
     setWellbeing(null);
     setRecommendations([]);
-    setNeural(null);
+    setRanker(null);
     setProfile(defaultPersonalProfile);
     setCompanionStatus(null);
     setCompanionContext(null);
@@ -464,7 +464,7 @@ export default function App() {
             guarded={guarded}
           />
         )}
-        {screen === "Insights" && <InsightsScreen palette={palette} recommendations={recommendations} neural={neural} api={api} guarded={guarded} />}
+        {screen === "Insights" && <InsightsScreen palette={palette} recommendations={recommendations} ranker={ranker} api={api} guarded={guarded} />}
         {screen === "Search" && <SearchScreen palette={palette} api={api} setScreen={setScreen} />}
         {screen === "More" && <MoreScreen palette={palette} setScreen={setScreen} />}
         {screen === "Profile" && <ProfileScreen palette={palette} profile={profile} api={api} guarded={guarded} />}

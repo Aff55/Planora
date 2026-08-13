@@ -2,7 +2,7 @@ import { prisma } from "../lib/prisma.js";
 import { getDayRange, getFutureDayBoundary, getRollingDayRange } from "../lib/dateTime.js";
 import { getAiDataPolicy } from "./aiPolicy.js";
 import { generateRecommendations } from "./recommendations.js";
-import { getNeuralEngineStatus } from "./neuralEngine.js";
+import { getAdaptiveRankerStatus } from "./adaptiveRanker.js";
 import { resourceLimits } from "./resourceLimits.js";
 
 type ContextTask = {
@@ -198,7 +198,7 @@ export async function getCompanionContextSnapshot(userId: string): Promise<Compa
     waterAgg,
     habits,
     recommendations,
-    neuralStatus,
+    rankerStatus,
     journals,
     recentAI
   ] = await Promise.all([
@@ -250,7 +250,7 @@ export async function getCompanionContextSnapshot(userId: string): Promise<Compa
     prisma.waterLog.aggregate({ where: { userId, loggedAt: { gte: todayStart, lt: todayEnd } }, _sum: { amountMl: true } }),
     prisma.habit.findMany({ where: { userId, active: true }, orderBy: [{ lastDoneAt: "asc" }, { updatedAt: "desc" }], take: 12 }),
     generateRecommendations(userId),
-    getNeuralEngineStatus(userId),
+    getAdaptiveRankerStatus(userId),
     policy.canUseSensitiveContext
       ? prisma.journalEntry.findMany({ where: { userId }, orderBy: { createdAt: "desc" }, take: 4 })
       : Promise.resolve([]),
@@ -396,16 +396,16 @@ export async function getCompanionContextSnapshot(userId: string): Promise<Compa
       actionUrl: recommendation.actionUrl
     })),
     learning: {
-      engine: neuralStatus.engine,
-      confidence: neuralStatus.confidence,
-      focusWindow: neuralStatus.focusWindow
-        ? `${neuralStatus.focusWindow.label} (${neuralStatus.focusWindow.averageFocus}/10, ${neuralStatus.focusWindow.sessions} actions)`
+      engine: rankerStatus.engine,
+      confidence: rankerStatus.confidence,
+      focusWindow: rankerStatus.focusWindow
+        ? `${rankerStatus.focusWindow.label} (${rankerStatus.focusWindow.averageFocus}/10, ${rankerStatus.focusWindow.sessions} actions)`
         : null,
-      samples: neuralStatus.samples,
-      engagement: neuralStatus.engagement,
-      detectedHabits: neuralStatus.detectedHabits,
-      topSignals: neuralStatus.topSignals,
-      recommendationWeights: neuralStatus.recommendationWeights
+      samples: rankerStatus.samples,
+      engagement: rankerStatus.engagement,
+      detectedHabits: rankerStatus.detectedHabits,
+      topSignals: rankerStatus.topSignals,
+      recommendationWeights: rankerStatus.recommendationWeights
     },
     recentJournalEntries: journals.map((journal) => ({
       title: journal.title,

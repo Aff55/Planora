@@ -5,7 +5,7 @@ import { prisma } from "../lib/prisma.js";
 import { type AuthRequest, requireAuth } from "../middleware/auth.js";
 import { generateRecommendations } from "../services/recommendations.js";
 import { recordModelEvent } from "../services/modelEvents.js";
-import { recordRecommendationLearning } from "../services/neuralEngine.js";
+import { recordRecommendationLearning } from "../services/adaptiveRanker.js";
 
 export const recommendationsRouter = Router();
 recommendationsRouter.use(requireAuth);

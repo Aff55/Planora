@@ -29,7 +29,7 @@ type FocusWindow = {
   sessions: number;
 };
 
-export type NeuralEngineStatus = {
+export type AdaptiveRankerStatus = {
   engine: "LOCAL_ONLINE_RANKER";
   version: string;
   learningMode: "user_scoped_online" | "disabled";
@@ -90,24 +90,24 @@ const baseRecommendationWeights: Record<RecommendationType, number> = {
   LOW_WATER_INTAKE: 0.82
 };
 
-export async function getNeuralEngineStatus(userId: string): Promise<NeuralEngineStatus> {
-  return buildNeuralProfile(userId);
+export async function getAdaptiveRankerStatus(userId: string): Promise<AdaptiveRankerStatus> {
+  return buildRankerProfile(userId);
 }
 
 export async function rankRecommendationCandidates<T extends RankableRecommendation>(userId: string, candidates: T[]) {
   if (candidates.length === 0) return [];
 
-  const profile = await buildNeuralProfile(userId);
+  const profile = await buildRankerProfile(userId);
   return candidates
     .map((candidate) => {
       const typeWeight = profile.recommendationWeights[candidate.type] ?? 1;
       const featureBoost = scoreCandidateFeatures(candidate, profile.featureWeights);
       const baseScore = candidate.priority ?? 50;
       const confidenceMultiplier = 0.55 + profile.confidence * 0.45;
-      const neuralScore = round2(baseScore * typeWeight * confidenceMultiplier + featureBoost);
-      return { ...candidate, neuralScore };
+      const rankerScore = round2(baseScore * typeWeight * confidenceMultiplier + featureBoost);
+      return { ...candidate, rankerScore };
     })
-    .sort((a, b) => b.neuralScore - a.neuralScore);
+    .sort((a, b) => b.rankerScore - a.rankerScore);
 }
 
 export async function recordRecommendationLearning(input: {
@@ -119,10 +119,17 @@ export async function recordRecommendationLearning(input: {
   const policy = await getAiDataPolicy(input.userId);
   if (!policy.canPersistLearning) return;
 
-  const profile = await buildNeuralProfile(input.userId);
+  const profile = await buildRankerProfile(input.userId);
   await prisma.modelEvent.create({
     data: {
       userId: input.userId,
+      // Deliberately still "neural_" after this service was renamed to the
+      // adaptive ranker. This string is written into ModelEvent.eventType, so
+      // it is stored data rather than an identifier: changing it would leave
+      // existing rows under the old value and new rows under the new one, and
+      // every query that filters by event type would silently read partial
+      // history. Renaming it is only safe alongside a migration that rewrites
+      // the rows already persisted.
       eventType: "neural_feedback_applied",
       payload: {
         engine: profile.engine,
@@ -212,10 +219,10 @@ export async function buildTrainingManifest(userId: string, limit = 500) {
   };
 }
 
-async function buildNeuralProfile(userId: string): Promise<NeuralEngineStatus> {
+async function buildRankerProfile(userId: string): Promise<AdaptiveRankerStatus> {
   const now = new Date();
   const policy = await getAiDataPolicy(userId);
-  if (!policy.canPersistLearning) return disabledNeuralStatus(now);
+  if (!policy.canPersistLearning) return disabledRankerStatus(now);
   const monthRange = getRollingDayRange(policy.timeZone, 31, now);
   const dayRange = getDayRange(policy.timeZone, now);
 
@@ -511,7 +518,7 @@ function timeOfDay(date: Date, timeZone: string): FocusWindow["label"] {
   return "night";
 }
 
-function disabledNeuralStatus(now: Date): NeuralEngineStatus {
+function disabledRankerStatus(now: Date): AdaptiveRankerStatus {
   return {
     engine: "LOCAL_ONLINE_RANKER",
     version,

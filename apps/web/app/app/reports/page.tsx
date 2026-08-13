@@ -9,7 +9,7 @@ import { EvidenceBlock } from "../../../components/ui/evidence";
 import { Banner, EmptyState, SkeletonPage } from "../../../components/ui/feedback";
 import { formatLongDate, formatMinutes, percent } from "../../../lib/format";
 import { useResource } from "../../../lib/useResource";
-import type { DashboardData, NeuralEngineStatus, PatternReport, WellbeingSummary } from "../../../lib/types";
+import type { DashboardData, AdaptiveRankerStatus, PatternReport, WellbeingSummary } from "../../../lib/types";
 
 /**
  * The weekly review.
@@ -25,8 +25,8 @@ import type { DashboardData, NeuralEngineStatus, PatternReport, WellbeingSummary
 export default function ReportsPage() {
   const dashboard = useResource<DashboardData>("/dashboard");
   const wellbeing = useResource<WellbeingSummary>("/wellbeing/summary");
-  const patterns = useResource<{ report: PatternReport }>("/neural/patterns");
-  const neural = useResource<{ status: NeuralEngineStatus }>("/neural/status");
+  const patterns = useResource<{ report: PatternReport }>("/ranker/patterns");
+  const ranker = useResource<{ status: AdaptiveRankerStatus }>("/ranker/status");
 
   if (dashboard.status === "loading") return <SkeletonPage metrics={4} rows={4} />;
   if (dashboard.status === "error" || !dashboard.data) {
@@ -40,7 +40,7 @@ export default function ReportsPage() {
 
   const data = dashboard.data;
   const report = patterns.data?.report ?? null;
-  const engine = neural.data?.status ?? null;
+  const engine = ranker.data?.status ?? null;
 
   const rows: Array<{ label: string; value: string }> = [
     { label: "Tasks finished", value: String(data.weeklyStatistics.completedTasks) },
