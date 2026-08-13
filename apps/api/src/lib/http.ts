@@ -58,6 +58,14 @@ export function errorHandler(error: unknown, _req: Request, res: Response, _next
     if (error.code === "P2025") return res.status(404).json({ error: "Record not found" });
     if (error.code === "P2003") return res.status(409).json({ error: "This record is still linked to another item" });
     if (error.code === "P2034") return res.status(409).json({ error: "The request conflicted with another update. Try again." });
+    // The transaction never got a slot within Prisma's queue timeout. Nothing
+    // is broken and nothing was written, so this is back-pressure rather than
+    // a server fault: say so with 503 and Retry-After instead of a 500, which
+    // would tell the client to give up on a request that is safe to repeat.
+    if (error.code === "P2028") {
+      res.setHeader("Retry-After", "1");
+      return res.status(503).json({ error: "The server is busy. Try again in a moment." });
+    }
   }
 
   console.error(error);

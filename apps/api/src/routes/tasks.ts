@@ -140,22 +140,38 @@ tasksRouter.patch(
     const userId = (req as AuthRequest).user.id;
     const existing = await getOwnedTask(userId, routeParam(req.params.id, "Task id"));
     const completed = req.body?.completed === undefined ? true : req.body.completed === true;
-    const shouldCreateNext =
-      completed && existing.status !== "COMPLETED" && Boolean(existing.recurringRule && existing.dueDate);
     const result = await withSerializableTransaction(async (tx) => {
-      const task = await tx.task.update({
+      // Claim the state transition atomically, rather than deciding from a read
+      // taken before the transaction opened. `updateMany` with the expected
+      // current status in its WHERE clause is a compare-and-swap: of a set of
+      // identical concurrent requests, exactly one matches a row and flips it,
+      // and the rest match nothing.
+      //
+      // This matters because only the request that genuinely moved the task out
+      // of TODO may spawn the next occurrence. Previously the status check sat
+      // outside this transaction, so five simultaneous completions all observed
+      // TODO and each created its own follow-up, leaving six copies of a daily
+      // task behind a double-tap.
+      const claim = completed
+        ? await tx.task.updateMany({
+            where: { id: existing.id, userId, status: { not: "COMPLETED" } },
+            data: { status: "COMPLETED", progress: 100, completedAt: new Date() }
+          })
+        : await tx.task.updateMany({
+            where: { id: existing.id, userId, status: "COMPLETED" },
+            data: { status: "TODO", progress: existing.progress, completedAt: null }
+          });
+      const claimedTransition = claim.count === 1;
+
+      const task = await tx.task.findUniqueOrThrow({
         where: { id: existing.id },
-        data: {
-          status: completed ? "COMPLETED" : "TODO",
-          progress: completed ? 100 : existing.progress,
-          completedAt: completed ? new Date() : null
-        },
         include: { subtasks: { orderBy: { order: "asc" } } }
       });
 
-      const nextDueDate = shouldCreateNext
-        ? getNextRecurringDate(existing.dueDate!, existing.recurringRule!)
-        : null;
+      const nextDueDate =
+        completed && claimedTransition && existing.recurringRule && existing.dueDate
+          ? getNextRecurringDate(existing.dueDate, existing.recurringRule)
+          : null;
       const taskCount = nextDueDate ? await tx.task.count({ where: { userId } }) : 0;
       const nextTask = nextDueDate && taskCount < resourceLimits.tasksPerUser
         ? await tx.task.create({

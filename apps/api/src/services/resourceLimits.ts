@@ -16,21 +16,55 @@ export const resourceLimits = {
   dashboardTasks: getPositiveInteger("MAX_DASHBOARD_TASKS", 50)
 };
 
+const TRANSACTION_ATTEMPTS = 5;
+
+/**
+ * Retryable failures when running at Serializable isolation.
+ *
+ * P2034 is the serialization conflict itself: two transactions read and wrote
+ * an overlapping range and Postgres aborted one of them. Every quota check in
+ * this file counts rows for a user and then inserts into that same range, so
+ * two concurrent writes by one account conflict by construction.
+ *
+ * P2028 is the transaction failing to *start* within Prisma's queue timeout.
+ * That is back-pressure rather than a fault: enough transactions were already
+ * in flight that this one never got a slot. Both are transient, and both are
+ * worth another attempt.
+ */
+function isRetryableTransactionError(error: unknown) {
+  return (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    (error.code === "P2034" || error.code === "P2028")
+  );
+}
+
+/**
+ * Retrying immediately is what turns one conflict into a storm: the losing
+ * transactions all wake at the same instant and collide again. Backing off
+ * exponentially with jitter spreads them out, which is the difference between
+ * a burst of concurrent writes mostly succeeding and mostly failing.
+ */
+function retryDelayMs(attempt: number) {
+  const base = 25 * 2 ** attempt;
+  return base + Math.random() * base;
+}
+
 export async function withSerializableTransaction<T>(
   operation: (tx: Prisma.TransactionClient) => Promise<T>
 ) {
-  for (let attempt = 0; attempt < 3; attempt += 1) {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < TRANSACTION_ATTEMPTS; attempt += 1) {
     try {
       return await prisma.$transaction(operation, {
         isolationLevel: Prisma.TransactionIsolationLevel.Serializable
       });
     } catch (error) {
-      const retryable =
-        error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2034";
-      if (!retryable || attempt === 2) throw error;
+      lastError = error;
+      if (!isRetryableTransactionError(error) || attempt === TRANSACTION_ATTEMPTS - 1) throw error;
+      await new Promise((resolve) => setTimeout(resolve, retryDelayMs(attempt)));
     }
   }
-  throw new Error("Serializable transaction retry limit reached");
+  throw lastError ?? new Error("Serializable transaction retry limit reached");
 }
 
 export async function assertTaskQuota(tx: Prisma.TransactionClient, userId: string) {
