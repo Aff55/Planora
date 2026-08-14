@@ -11,26 +11,29 @@
     "doctor": "expo-doctor"
   },
   "dependencies": {
-    "@expo/vector-icons": "^15.1.1",
+    "@expo/vector-icons": "^15.0.3",
     "@planora/shared": "1.0.0",
     "@react-native-async-storage/async-storage": "2.2.0",
-    "@react-native-community/datetimepicker": "9.1.0",
-    "expo": "~57.0.8",
-    "expo-constants": "~57.0.7",
-    "expo-device": "~57.0.1",
-    "expo-file-system": "~57.0.1",
-    "expo-linear-gradient": "~57.0.1",
-    "expo-notifications": "~57.0.7",
-    "expo-secure-store": "~57.0.1",
-    "expo-sharing": "~57.0.7",
-    "expo-splash-screen": "~57.0.5",
-    "expo-status-bar": "~57.0.1",
-    "react": "19.2.3",
-    "react-native": "0.86.0",
-    "typescript": "~6.0.3"
+    "@react-native-community/datetimepicker": "8.4.4",
+    "expo": "~54.0.36",
+    "expo-asset": "~12.0.13",
+    "expo-constants": "~18.0.13",
+    "expo-device": "~8.0.10",
+    "expo-file-system": "~19.0.23",
+    "expo-font": "~14.0.12",
+    "expo-linear-gradient": "~15.0.8",
+    "expo-notifications": "~0.32.17",
+    "expo-secure-store": "~15.0.8",
+    "expo-sharing": "~14.0.8",
+    "expo-splash-screen": "~31.0.13",
+    "expo-status-bar": "~3.0.9",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "typescript": "~5.9.2"
   },
   "devDependencies": {
-    "@types/react": "^19.2.0",
+    "@babel/preset-env": "^8.0.2",
+    "@types/react": "~19.1.10",
     "expo-doctor": "^1.20.1"
   }
 }

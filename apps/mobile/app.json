@@ -47,8 +47,6 @@
         }
       ],
       "expo-secure-store",
-      "expo-status-bar",
-      "expo-sharing",
       "@react-native-community/datetimepicker"
     ],
     "extra": {
