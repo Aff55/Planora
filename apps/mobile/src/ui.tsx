@@ -5,7 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import {
   AccessibilityInfo,
   Animated,
-  KeyboardAvoidingView,
+  Dimensions,
+  Keyboard,
   Platform,
   Pressable,
   SafeAreaView,
@@ -175,14 +176,48 @@ export function CountUpText({
   return <Text style={style}>{`${display.toLocaleString()}${suffix}`}</Text>;
 }
 
+/**
+ * Keeps content clear of the on-screen keyboard.
+ *
+ * React Native ships `KeyboardAvoidingView` for this, but it is a class
+ * component that keeps its handlers as class fields, and it does not survive
+ * the class lowering this app needs for older Hermes builds: the instance loses
+ * `_updateBottomIfNecessary`, and every keyboard event throws. The behaviour is
+ * a few lines as a function component, and a function component has no class
+ * semantics to lower, so this sidesteps the problem instead of shimming it.
+ *
+ * Matches the previous `behavior="padding"` on iOS. Android already pans the
+ * window itself, so adding padding there would double-count the keyboard.
+ */
+function KeyboardAvoider({ style, children }: { style?: StyleProp<ViewStyle>; children: React.ReactNode }) {
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  useEffect(() => {
+    if (Platform.OS !== "ios") return;
+    // `WillChangeFrame` tracks the interactive dismiss gesture too, not just
+    // the show/hide pair, so the content follows the keyboard rather than
+    // snapping once it has finished moving.
+    const onChange = Keyboard.addListener("keyboardWillChangeFrame", (event) => {
+      const screenHeight = Dimensions.get("window").height;
+      const top = event.endCoordinates?.screenY ?? screenHeight;
+      setKeyboardHeight(Math.max(0, screenHeight - top));
+    });
+    const onHide = Keyboard.addListener("keyboardWillHide", () => setKeyboardHeight(0));
+    return () => {
+      onChange.remove();
+      onHide.remove();
+    };
+  }, []);
+
+  return <View style={[style, keyboardHeight > 0 && { paddingBottom: keyboardHeight }]}>{children}</View>;
+}
+
 export function AppFrame({ palette, dark, children }: { palette: Palette; dark: boolean; children: React.ReactNode }) {
   return (
     <View style={[styles.root, { backgroundColor: palette.bg }]}>
       <StatusBar style={dark ? "light" : "dark"} />
       <SafeAreaView style={styles.safe}>
-        <KeyboardAvoidingView style={styles.keyboard} behavior={Platform.OS === "ios" ? "padding" : undefined}>
-          {children}
-        </KeyboardAvoidingView>
+        <KeyboardAvoider style={styles.keyboard}>{children}</KeyboardAvoider>
       </SafeAreaView>
     </View>
   );

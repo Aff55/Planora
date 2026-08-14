@@ -1,24 +1,48 @@
+import Constants, { ExecutionEnvironment } from "expo-constants";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import type { CalendarEvent, Task } from "./types";
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldPlaySound: false,
-    shouldSetBadge: true,
-    shouldShowBanner: true,
-    shouldShowList: true
-  })
-});
+/**
+ * Expo Go dropped the notification native module in SDK 53, so every call in
+ * this file throws there. That matters most for `setNotificationHandler` below:
+ * it runs at import time, and an exception during module evaluation stops the
+ * root component ever registering - the app dies with "App entry not found"
+ * rather than with anything pointing at notifications.
+ *
+ * `StoreClient` is the Expo Go execution environment; a development or release
+ * build reports something else and keeps full functionality. The try/catch is a
+ * second line of defence for any other host that lacks the module, since losing
+ * reminders is always preferable to losing the app.
+ */
+export const notificationsSupported =
+  Constants.executionEnvironment !== ExecutionEnvironment.StoreClient;
+
+if (notificationsSupported) {
+  try {
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldPlaySound: false,
+        shouldSetBadge: true,
+        shouldShowBanner: true,
+        shouldShowList: true
+      })
+    });
+  } catch {
+    // Host does not provide the native module; scheduling is skipped below.
+  }
+}
 
 const channelId = "planora-reminders";
 
 export async function getNotificationPermission() {
+  if (!notificationsSupported) return false;
   const settings = await Notifications.getPermissionsAsync();
   return settings.granted || settings.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL;
 }
 
 export async function requestNotificationPermission() {
+  if (!notificationsSupported) return false;
   if (Device.isDevice) {
     await Notifications.setNotificationChannelAsync(channelId, {
       name: "Planora reminders",
@@ -114,6 +138,7 @@ export async function syncPlanoraNotifications(tasks: Task[], events: CalendarEv
 }
 
 export async function cancelPlanoraNotifications() {
+  if (!notificationsSupported) return;
   const scheduled = await Notifications.getAllScheduledNotificationsAsync();
   await cancelMatchingNotifications(scheduled.filter((item) => String(item.identifier).startsWith("planora-")));
 }

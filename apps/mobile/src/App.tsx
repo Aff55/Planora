@@ -12,7 +12,7 @@ import {
   View
 } from "react-native";
 import { apiRequest, currentMonthKey, defaultApiUrl, normalizeApiUrl } from "./api";
-import { cancelPlanoraNotifications, getNotificationPermission, scheduleDailyBrief, syncPlanoraNotifications } from "./notifications";
+import { cancelPlanoraNotifications, getNotificationPermission, notificationsSupported, scheduleDailyBrief, syncPlanoraNotifications } from "./notifications";
 import type { ActivityEntry, AIHistoryItem, CalendarEvent, CompanionContext, CompanionStatus, CurrentUser, DashboardData, AdaptiveRankerStatus, PageInfo, PersonalProfile, Recommendation, SettingsShape, Task, WellbeingSummary } from "./types";
 import { ScreenName, tokenKey, pendingLogoutTokenKey, apiUrlKey, themeKey, defaultSettings, notificationScreens, defaultPersonalProfile, colors } from "./theme";
 import { resolveDark, shiftMonthKey } from "./utils";
@@ -25,7 +25,9 @@ import { CalendarScreen } from "./screens/CalendarScreen";
 import { LifeScreen } from "./screens/LifeScreen";
 import { WellbeingScreen } from "./screens/WellbeingScreen";
 import { CompanionScreen } from "./screens/CompanionScreen";
+import { FocusScreen } from "./screens/FocusScreen";
 import { InsightsScreen } from "./screens/InsightsScreen";
+import { ReportsScreen } from "./screens/ReportsScreen";
 import { SearchScreen } from "./screens/SearchScreen";
 import { MoreScreen } from "./screens/MoreScreen";
 import { ProfileScreen } from "./screens/ProfileScreen";
@@ -65,13 +67,27 @@ export default function App() {
     [apiUrl, token]
   );
 
-  const loadEverything = useCallback(
-    async (
-      nextToken = token,
-      nextApiUrl = apiUrl,
-      notificationSettings = user?.settings,
-      requestedMonth = calendarMonth
-    ) => {
+  /**
+   * Deliberately a function declaration rather than a `useCallback`.
+   *
+   * It is only ever called - it appears in no dependency array - so the
+   * memoisation bought nothing, and routing it through a hook made it depend on
+   * hook state resolving correctly. On an older Expo Go it did not: the binding
+   * read back as `undefined`, so the initial load silently did nothing and pull
+   * to refresh threw "loadEverything is not a function".
+   *
+   * A function declaration is hoisted to the top of the component, so it exists
+   * for every closure in this scope regardless of render or hook behaviour.
+   * The defaults still read the current render's values, which is what the call
+   * sites passing explicit arguments rely on.
+   */
+  async function loadEverything(
+    nextToken = token,
+    nextApiUrl = apiUrl,
+    notificationSettings = user?.settings,
+    requestedMonth = calendarMonth
+  ) {
+    {
       if (!nextToken) return;
       setRefreshing(true);
       setError(null);
@@ -138,9 +154,8 @@ export default function App() {
       } finally {
         setRefreshing(false);
       }
-    },
-    [apiUrl, calendarMonth, token, user?.settings]
-  );
+    }
+  }
 
   useEffect(() => {
     const openNotification = (response: Notifications.NotificationResponse | null) => {
@@ -150,6 +165,9 @@ export default function App() {
       }
     };
 
+    // Expo Go has no notification native module, so these throw there. Deep
+    // linking from a notification simply does not apply in that host.
+    if (!notificationsSupported) return;
     void Notifications.getLastNotificationResponseAsync().then(openNotification);
     const subscription = Notifications.addNotificationResponseReceivedListener(openNotification);
     return () => subscription.remove();
@@ -465,6 +483,21 @@ export default function App() {
           />
         )}
         {screen === "Insights" && <InsightsScreen palette={palette} recommendations={recommendations} ranker={ranker} api={api} guarded={guarded} />}
+        {screen === "Focus" && (
+          <FocusScreen
+            palette={palette}
+            data={dashboard}
+            completeTask={(task) =>
+              guarded(
+                () => api(`/tasks/${task.id}/complete`, { method: "PATCH", body: JSON.stringify({ completed: true }) }),
+                "Task completed."
+              )
+            }
+          />
+        )}
+        {screen === "Reports" && (
+          <ReportsScreen palette={palette} data={dashboard} wellbeing={wellbeing} ranker={ranker} api={api} />
+        )}
         {screen === "Search" && <SearchScreen palette={palette} api={api} setScreen={setScreen} />}
         {screen === "More" && <MoreScreen palette={palette} setScreen={setScreen} />}
         {screen === "Profile" && <ProfileScreen palette={palette} profile={profile} api={api} guarded={guarded} />}
