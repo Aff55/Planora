@@ -58,6 +58,12 @@ function AnimatedPressable({
   accessibilityLabel,
   accessibilityRole,
   style,
+  // `style` lands on the inner animated view, so layout that has to be seen by
+  // the *parent* - `flex: 1` in a row, most importantly - has to go here or it
+  // is applied to a child and silently does nothing. That is what left the tab
+  // bar bunched into the left of the screen: every tab sized to its own text
+  // instead of taking an equal share of the row.
+  containerStyle,
   pressedScale = 0.96,
   children
 }: {
@@ -66,6 +72,7 @@ function AnimatedPressable({
   accessibilityLabel?: string;
   accessibilityRole?: "button" | "tab";
   style?: StyleProp<ViewStyle>;
+  containerStyle?: StyleProp<ViewStyle>;
   pressedScale?: number;
   children: React.ReactNode;
 }) {
@@ -89,6 +96,7 @@ function AnimatedPressable({
       onPressOut={disabled ? undefined : pressOut}
       accessibilityLabel={accessibilityLabel}
       accessibilityRole={accessibilityRole ?? "button"}
+      style={containerStyle}
     >
       <Animated.View style={[style, { transform: [{ scale }] }]}>{children}</Animated.View>
     </Pressable>
@@ -216,6 +224,14 @@ export function AppFrame({ palette, dark, children }: { palette: Palette; dark: 
   return (
     <View style={[styles.root, { backgroundColor: palette.bg }]}>
       <StatusBar style={dark ? "light" : "dark"} />
+      {/*
+        The tab bar sits inside the safe area, so it stops short of the physical
+        bottom edge and the home-indicator strip below it showed the page
+        background - a dark band under the bar. This paints that strip in the
+        bar's own colour, so the bar reads as reaching the bottom of the screen.
+        Rendered before the content so it stays behind everything.
+      */}
+      <View style={[styles.bottomFill, { backgroundColor: palette.card }]} />
       <SafeAreaView style={styles.safe}>
         <KeyboardAvoider style={styles.keyboard}>{children}</KeyboardAvoider>
       </SafeAreaView>
@@ -234,7 +250,12 @@ export function TabBar({
 }) {
   return (
     <View style={[styles.tabShell, { borderTopColor: palette.border, backgroundColor: palette.card }]}>
-      <SafeAreaView>
+      {/*
+        No SafeAreaView here. AppFrame already applies the bottom inset, and
+        nesting a second one counted the home-indicator padding twice, which is
+        what pushed the bar up and opened the gap beneath it.
+      */}
+      <View>
         <View style={styles.tabs}>
           {tabs.map((tab) => {
             const selected =
@@ -246,25 +267,21 @@ export function TabBar({
                 pressedScale={0.92}
                 accessibilityRole="tab"
                 accessibilityLabel={tab.name}
-                style={[styles.tab, selected && { backgroundColor: palette.amberSoft }]}
+                containerStyle={styles.tabSlot}
+                style={styles.tab}
               >
-                <Ionicons name={tab.icon} size={23} color={selected ? palette.orange : palette.muted} />
+                <Ionicons name={tab.icon} size={24} color={selected ? palette.orange : palette.muted} />
                 <Text
                   numberOfLines={1}
-                  // "Companion" is the longest label and would otherwise wrap on
-                  // a narrow phone, which pushes that one tab taller than the
-                  // rest and breaks the row's alignment.
-                  adjustsFontSizeToFit
-                  minimumFontScale={0.85}
                   style={[styles.tabText, { color: selected ? palette.orange : palette.muted }]}
                 >
-                  {tab.name}
+                  {tab.label}
                 </Text>
               </AnimatedPressable>
             );
           })}
         </View>
-      </SafeAreaView>
+      </View>
     </View>
   );
 }

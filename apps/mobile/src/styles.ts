@@ -440,28 +440,49 @@ export const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     borderTopWidth: StyleSheet.hairlineWidth,
-    paddingTop: 6
+    // Breathing room above the row, which is what stops five tabs reading as a
+    // crowded strip pinned to the bottom edge.
+    paddingTop: 10,
+    paddingBottom: 4
+  },
+  /**
+   * Covers the home-indicator strip beneath the tab bar. Sized generously so it
+   * spans the inset on every device; anything it covers beyond the bar is the
+   * same colour anyway.
+   */
+  bottomFill: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 48
   },
   tabs: {
-    paddingHorizontal: 8,
-    gap: 2,
+    paddingHorizontal: 6,
+    gap: 4,
     flexDirection: "row"
   },
-  tab: {
+  /** The flex cell itself. Must sit on the Pressable, not on its inner view. */
+  tabSlot: {
     flex: 1,
+    minWidth: 0
+  },
+  tab: {
     minWidth: 0,
     // Apple's minimum comfortable target is 44pt; 60 gives the icon and its
     // label room to sit apart without the whole bar feeling heavy. The previous
     // 52 with an 11pt label was genuinely hard to hit.
-    minHeight: 60,
+    minHeight: 56,
     borderRadius: radius.control,
     alignItems: "center",
     justifyContent: "center",
-    gap: 4,
-    paddingHorizontal: 4
+    // The icon and its label are a single unit; the space that makes the row
+    // feel calm belongs around them, not between them.
+    gap: 3,
+    paddingHorizontal: 2
   },
   tabText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "600",
     letterSpacing: -0.1,
     // Without an explicit centre and a full-width box the label aligns to the

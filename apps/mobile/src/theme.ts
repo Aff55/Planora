@@ -31,12 +31,19 @@ export const defaultSettings: SettingsShape = {
   exportFormat: "JSON"
 };
 
-export const tabs: Array<{ name: ScreenName; icon: IconName }> = [
-  { name: "Dashboard", icon: "home-outline" },
-  { name: "Tasks", icon: "checkbox-outline" },
-  { name: "Life", icon: "walk-outline" },
-  { name: "Companion", icon: "chatbubble-ellipses-outline" },
-  { name: "More", icon: "grid-outline" }
+/**
+ * `label` exists separately from `name` because the screen identifier and the
+ * word under the icon have different constraints. Five tabs on a 390pt phone
+ * leaves roughly 76pt each, and "Dashboard" and "Companion" do not fit at a
+ * legible size - they wrapped or shrank out of step with their neighbours.
+ * Short labels let the icons carry the meaning and stay large.
+ */
+export const tabs: Array<{ name: ScreenName; label: string; icon: IconName }> = [
+  { name: "Dashboard", label: "Today", icon: "home-outline" },
+  { name: "Tasks", label: "Tasks", icon: "checkbox-outline" },
+  { name: "Life", label: "Life", icon: "walk-outline" },
+  { name: "Companion", label: "Chat", icon: "chatbubble-ellipses-outline" },
+  { name: "More", label: "More", icon: "grid-outline" }
 ];
 
 export const secondaryScreens: Array<{ name: ScreenName; icon: IconName; body: string }> = [
