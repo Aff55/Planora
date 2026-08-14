@@ -1,0 +1,16 @@
+# Raw Claude Code JSONL sessions are not committed
+raw/sessions/*.jsonl
+raw/sessions/*.symlink
+
+# Large binaries
+raw/**/*.pdf
+raw/**/*.zip
+raw/**/*.tar*
+raw/**/*.mp4
+
+# OS
+.DS_Store
+
+# Obsidian workspace (personal)
+.obsidian/workspace*
+.obsidian/graph.json
