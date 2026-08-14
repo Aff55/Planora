@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+import { Icon as Ionicons } from "./icon";
 import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useRef, useState } from "react";
@@ -246,10 +246,20 @@ export function TabBar({
                 pressedScale={0.92}
                 accessibilityRole="tab"
                 accessibilityLabel={tab.name}
-                style={styles.tab}
+                style={[styles.tab, selected && { backgroundColor: palette.amberSoft }]}
               >
-                <Ionicons name={tab.icon} size={22} color={selected ? palette.orange : palette.muted} />
-                <Text style={[styles.tabText, { color: selected ? palette.orange : palette.muted }]}>{tab.name}</Text>
+                <Ionicons name={tab.icon} size={23} color={selected ? palette.orange : palette.muted} />
+                <Text
+                  numberOfLines={1}
+                  // "Companion" is the longest label and would otherwise wrap on
+                  // a narrow phone, which pushes that one tab taller than the
+                  // rest and breaks the row's alignment.
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.85}
+                  style={[styles.tabText, { color: selected ? palette.orange : palette.muted }]}
+                >
+                  {tab.name}
+                </Text>
               </AnimatedPressable>
             );
           })}

@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+import { Icon as Ionicons } from "../icon";
 import { useState } from "react";
 import {
   Alert,

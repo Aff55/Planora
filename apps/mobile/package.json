@@ -11,7 +11,7 @@
     "doctor": "expo-doctor"
   },
   "dependencies": {
-    "@expo/vector-icons": "^15.0.3",
+    "@expo/vector-icons": "~15.0.3",
     "@planora/shared": "1.0.0",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/datetimepicker": "8.4.4",

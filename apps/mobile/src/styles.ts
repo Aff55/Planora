@@ -450,16 +450,26 @@ export const styles = StyleSheet.create({
   tab: {
     flex: 1,
     minWidth: 0,
-    minHeight: 52,
+    // Apple's minimum comfortable target is 44pt; 60 gives the icon and its
+    // label room to sit apart without the whole bar feeling heavy. The previous
+    // 52 with an 11pt label was genuinely hard to hit.
+    minHeight: 60,
     borderRadius: radius.control,
     alignItems: "center",
     justifyContent: "center",
-    gap: 3,
+    gap: 4,
     paddingHorizontal: 4
   },
   tabText: {
-    fontSize: 11,
-    fontWeight: "500"
+    fontSize: 12,
+    fontWeight: "600",
+    letterSpacing: -0.1,
+    // Without an explicit centre and a full-width box the label aligns to the
+    // start of whatever width it happens to take, so "Companion" and "Life" sat
+    // off-centre from each other and from their icons.
+    textAlign: "center",
+    alignSelf: "stretch",
+    includeFontPadding: false
   },
   notice: {
     marginHorizontal: 16,

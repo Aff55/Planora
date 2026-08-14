@@ -1,7 +1,7 @@
-import { Ionicons } from "@expo/vector-icons";
+import type { IconName } from "./icon";
 import type { PersonalProfile, SettingsShape } from "./types";
 
-export type IconName = React.ComponentProps<typeof Ionicons>["name"];
+export type { IconName };
 export type ScreenName =
   | "Dashboard"
   | "Tasks"

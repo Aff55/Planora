@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+import { Icon as Ionicons } from "../icon";
 import { Text, View } from "react-native";
 import { ScreenName, secondaryScreens, colors } from "../theme";
 import { SectionTitle, Group, Row, FadeIn } from "../ui";
