@@ -101,7 +101,11 @@ export function CompanionScreen({
                     palette={palette}
                     role="assistant"
                     text={item.response}
-                    meta={item.provider === "OLLAMA" ? "Ollama" : "Planora Core"}
+                    // Name the model rather than the runtime. "Ollama" is only
+                    // the local server; the answer came from whichever model is
+                    // configured on it, and saying so makes the two AI paths
+                    // distinguishable at a glance.
+                    meta={item.provider === "OLLAMA" ? (status?.model ?? "Local model") : "Planora Core"}
                   />
                 </View>
               </FadeIn>

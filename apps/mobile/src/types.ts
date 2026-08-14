@@ -187,6 +187,33 @@ export type WellbeingSummary = {
   safetyNote: string;
 };
 
+/**
+ * `patterns.ts` - the detector kinds, and the audit object each one carries.
+ *
+ * Kept identical to `apps/web/lib/types.ts`. Both describe the same
+ * `GET /api/ranker/patterns` response, so any change to one has to be mirrored
+ * in the other or the two clients drift apart silently.
+ */
+export type PatternKind = "weekday_rhythm" | "co_occurrence" | "trend" | "lapse" | "time_of_day";
+
+export type DetectedPattern = {
+  kind: PatternKind;
+  key: string;
+  title: string;
+  detail: string;
+  confidence: number;
+  evidence: Record<string, unknown>;
+};
+
+export type PatternReport = {
+  generatedAt: string;
+  windowDays: number;
+  observedDays: number;
+  patterns: DetectedPattern[];
+  /** Checks that ran and found nothing, so an empty result is explainable. */
+  inconclusive: Array<{ key: string; reason: string }>;
+};
+
 export type AdaptiveRankerStatus = {
   engine: "LOCAL_ONLINE_RANKER";
   version: string;

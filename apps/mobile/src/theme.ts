@@ -2,7 +2,20 @@ import { Ionicons } from "@expo/vector-icons";
 import type { PersonalProfile, SettingsShape } from "./types";
 
 export type IconName = React.ComponentProps<typeof Ionicons>["name"];
-export type ScreenName = "Dashboard" | "Tasks" | "Calendar" | "Life" | "Wellbeing" | "Companion" | "Insights" | "Search" | "Profile" | "Settings" | "More";
+export type ScreenName =
+  | "Dashboard"
+  | "Tasks"
+  | "Calendar"
+  | "Life"
+  | "Wellbeing"
+  | "Companion"
+  | "Insights"
+  | "Focus"
+  | "Reports"
+  | "Search"
+  | "Profile"
+  | "Settings"
+  | "More";
 
 export const tokenKey = "planora_mobile_token";
 export const pendingLogoutTokenKey = "planora_mobile_pending_logout_token";
@@ -29,7 +42,9 @@ export const tabs: Array<{ name: ScreenName; icon: IconName }> = [
 export const secondaryScreens: Array<{ name: ScreenName; icon: IconName; body: string }> = [
   { name: "Calendar", icon: "calendar-outline", body: "Events and reminders" },
   { name: "Wellbeing", icon: "heart-outline", body: "Mood, sleep, water, journal" },
+  { name: "Focus", icon: "flag-outline", body: "One task, nothing else" },
   { name: "Insights", icon: "analytics-outline", body: "Recommendations and learning" },
+  { name: "Reports", icon: "document-text-outline", body: "Weekly review and patterns" },
   { name: "Search", icon: "search-outline", body: "Find anything in Planora" },
   { name: "Profile", icon: "person-circle-outline", body: "Goals, routine, personalization" },
   { name: "Settings", icon: "settings-outline", body: "Account, privacy, notifications" }
