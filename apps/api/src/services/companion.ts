@@ -461,6 +461,9 @@ async function tryOllama(
     if (isSuspiciousModelResponse(cleaned, message, recentTurns)) return null;
     // Never let the model tell the user it changed their data when it did not.
     if (claimsUnbackedAction(cleaned, structured)) return null;
+    // ...nor deny a change it really made. Both fall back to the rule-based
+    // answer, which states what the service actually wrote.
+    if (deniesBackedAction(cleaned, structured)) return null;
     return { response: cleaned, model: data.model ?? model };
   } catch {
     return null;
@@ -680,6 +683,29 @@ function claimsUnbackedAction(response: string, structured: StructuredActions) {
     );
   if (!claimsCreation) return false;
   return !structured.createdTaskTitle && !structured.createdEventTitle && !structured.createdActivityTitle;
+}
+
+/**
+ * The mirror of the check above, and the one that was missing.
+ *
+ * Claiming an action that did not happen is the loud failure. Denying one that
+ * did is the quiet one, and it is worse in a specific way: the record really
+ * was written, so the user is told to go and do a thing that is already done,
+ * and they lose trust in what the app reports about itself.
+ *
+ * A fine-tuned model can learn this from training data that describes the
+ * product wrongly - a corpus teaching "I can't add tasks myself" will produce
+ * exactly this against a service that just added the task. Guarding it here
+ * rather than only in the data keeps the behaviour correct for any model.
+ */
+function deniesBackedAction(response: string, structured: StructuredActions) {
+  const didAct = Boolean(
+    structured.createdTaskTitle || structured.createdEventTitle || structured.createdActivityTitle
+  );
+  if (!didAct) return false;
+  return /\b(i (?:can'?t|cannot|am not able to|won'?t be able to)\s+(?:add|create|log|schedule|save|set)|i'?m not (?:your|able to)|you'?ll need to (?:add|log|create|do)|needs? to go in from|not something i can do|i can(?:'?t| not) (?:write|change|modify)|i only (?:read|see))\b/i.test(
+    response
+  );
 }
 
 export function classifyCompanionBoundary(message: string): CompanionBoundary | null {

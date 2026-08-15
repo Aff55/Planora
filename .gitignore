@@ -10,6 +10,13 @@ coverage
 apps/api/unsloth_compiled_cache/
 __pycache__/
 *.bak
+# *.bak alone does not catch a timestamped backup such as
+# apps/api/.env.bak-20260815, which holds JWT_SECRET and DATABASE_URL in
+# plain text. Anything derived from an env file must be ignored however it
+# is suffixed.
+*.bak-*
+.env.bak*
+.env.*.bak
 .DS_Store
 Thumbs.db
 .env
