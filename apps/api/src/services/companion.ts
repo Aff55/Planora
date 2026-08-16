@@ -254,9 +254,35 @@ async function tryCreateStructuredItem(userId: string, message: string, timeZone
   const created: StructuredActions = {};
   if (isInformationalRequest(message)) return created;
 
-  const taskMatch = message.match(/^\s*(?:please\s+)?(?:add|create|make)\s+(?:a\s+)?task\s+(?:to\s+)?(.+)/i);
-  if (taskMatch?.[1]) {
-    const title = cleanupTitle(taskMatch[1]);
+  // The original pattern required the literal word "task" straight after the
+  // verb, so "add a task to call the plumber" worked and "add buy milk to my
+  // tasks" did not. The failure was invisible from the outside: nothing was
+  // created, the model said it had added it anyway, claimsUnbackedAction
+  // correctly rejected that reply, and the user got a generic fallback - so it
+  // looked like the companion had lost the ability to add tasks at all.
+  //
+  // Ordered most specific first. "remind me to X" is included because it is how
+  // people ask for this, and a task is the honest interpretation: the service
+  // has no reminder capability, and the acknowledgement says "I created the
+  // task", never "I set a reminder".
+  const taskPatterns = [
+    /^\s*(?:please\s+)?(?:add|create|make)\s+(?:an?\s+)?task\s+(?:to\s+|called\s+|named\s+|for\s+)?(.+)/i,
+    /^\s*(?:please\s+)?(?:add|put)\s+(.+?)\s+(?:to|on|in)\s+my\s+(?:task\s*list|tasks?|to-?do(?:\s*list)?|list)\s*[.!]?\s*$/i,
+    /^\s*(?:please\s+)?remind\s+me\s+to\s+(.+)/i,
+    /^\s*(?:please\s+)?(?:i\s+need|i\s+have)\s+to\s+(.+?)\s*[.!]?\s*$/i
+  ];
+
+  let taskTitleRaw: string | null = null;
+  for (const pattern of taskPatterns) {
+    const match = message.match(pattern);
+    if (match?.[1]) {
+      taskTitleRaw = match[1];
+      break;
+    }
+  }
+
+  if (taskTitleRaw) {
+    const title = cleanupTitle(taskTitleRaw);
     if (!title) return created;
     const task = await withSerializableTransaction(async (tx) => {
       const order = await assertTaskQuota(tx, userId);
@@ -313,7 +339,7 @@ async function tryCreateStructuredItem(userId: string, message: string, timeZone
     created.createdEventTitle = event.title;
   }
 
-  const isExplicitTaskOrEvent = Boolean(taskMatch?.[1] || eventMatch?.[1]);
+  const isExplicitTaskOrEvent = Boolean(taskTitleRaw || eventMatch?.[1]);
   if (!isExplicitTaskOrEvent && looksLikeActivity(message)) {
     const title = cleanupActivityTitle(message);
     if (!title) return created;
@@ -904,7 +930,13 @@ function isInformationalRequest(message: string) {
     /^\s*(?:how|what|why|when|where|who|can|could|would|should|do|does|did|explain|show|tell|help)\b/i.test(
       message
     ) ||
-    /\b(?:suggest|recommend|plan|advise|remind|help me|give me|tell me|what should)\b/i.test(message)
+    // "remind" is informational in "remind me what I said", but "remind me TO
+    // do X" is an imperative - it is one of the commonest ways people ask for a
+    // task. Treating the whole word as a question meant those requests returned
+    // early and never created anything.
+    /\b(?:suggest|recommend|plan|advise|remind(?!\s+me\s+to\b)|help me|give me|tell me|what should)\b/i.test(
+      message
+    )
   );
 }
 
