@@ -1,7 +1,7 @@
 import { Icon as Ionicons } from "../icon";
 import { useState } from "react";
 import { Image, Pressable, ScrollView, Text, View } from "react-native";
-import { apiRequest } from "../api";
+import { apiRequest, showDevTools } from "../api";
 import type { CurrentUser } from "../types";
 import { colors } from "../theme";
 import { Card, Input, Button, GhostButton, FadeIn } from "../ui";
@@ -102,7 +102,7 @@ export function AuthScreen({
           autoComplete={mode === "login" ? "current-password" : "new-password"}
           hint={mode === "register" ? "At least 8 characters." : undefined}
         />
-        {__DEV__ && (
+        {showDevTools && (
           <Input
             palette={palette}
             label="Development API"

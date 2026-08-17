@@ -6,6 +6,22 @@ const apiUrlFromConfig = (Constants.expoConfig?.extra?.apiUrl as string | undefi
 export const defaultApiUrl =
   process.env.EXPO_PUBLIC_API_URL ?? (Platform.OS === "android" ? "http://10.0.2.2:4000/api" : apiUrlFromConfig);
 
+/**
+ * Whether to show developer tooling in the UI.
+ *
+ * Expo Go always runs with __DEV__ === true, so gating on that alone put a
+ * "Development API" field on the sign-in screen and a "Development server" card
+ * in Settings for every user of the app - including anyone being shown a demo.
+ *
+ * This is opt-in instead: set EXPO_PUBLIC_SHOW_DEV_TOOLS=1 when you need to
+ * point the app at a different server by hand. Default is off, so the app
+ * presents as a finished product.
+ *
+ * Note this deliberately does NOT gate the HTTPS requirement below - that stays
+ * tied to __DEV__, because it is a security guard rather than a convenience.
+ */
+export const showDevTools = __DEV__ && process.env.EXPO_PUBLIC_SHOW_DEV_TOOLS === "1";
+
 export function normalizeApiUrl(value: string) {
   const trimmed = value.trim().replace(/\/+$/, "");
   let parsed: URL;

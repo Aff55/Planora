@@ -7,7 +7,7 @@ import {
   Text,
   View
 } from "react-native";
-import { apiDownloadText, normalizeApiUrl } from "../api";
+import { apiDownloadText, normalizeApiUrl, showDevTools } from "../api";
 import type { CurrentUser, SettingsShape } from "../types";
 import { apiUrlKey, defaultSettings, colors } from "../theme";
 import { Card, SectionTitle, Input, Button, GhostButton, OptionChips, ToggleRow } from "../ui";
@@ -130,7 +130,7 @@ export function SettingsScreen({
         <Button palette={palette} icon="notifications-outline" label="Enable daily brief + reminders" onPress={() => void enableNotifications()} />
         <GhostButton palette={palette} label="Disable Planora notifications" onPress={() => void disableNotifications()} />
       </Card>
-      {__DEV__ && (
+      {showDevTools && (
         <Card palette={palette}>
           <SectionTitle palette={palette} title="Development server" />
           <Input palette={palette} label="API URL" value={apiUrl} onChangeText={setApiUrl} autoCapitalize="none" />

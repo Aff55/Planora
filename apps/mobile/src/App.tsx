@@ -11,7 +11,7 @@ import {
   useColorScheme,
   View
 } from "react-native";
-import { apiRequest, currentMonthKey, defaultApiUrl, normalizeApiUrl } from "./api";
+import { apiRequest, currentMonthKey, defaultApiUrl, normalizeApiUrl, showDevTools } from "./api";
 import { cancelPlanoraNotifications, getNotificationPermission, notificationsSupported, scheduleDailyBrief, syncPlanoraNotifications } from "./notifications";
 import type { ActivityEntry, AIHistoryItem, CalendarEvent, CompanionContext, CompanionStatus, CurrentUser, DashboardData, AdaptiveRankerStatus, PageInfo, PersonalProfile, Recommendation, SettingsShape, Task, WellbeingSummary } from "./types";
 import { ScreenName, tokenKey, pendingLogoutTokenKey, apiUrlKey, themeKey, defaultSettings, notificationScreens, defaultPersonalProfile, colors } from "./theme";
@@ -187,7 +187,11 @@ export default function App() {
         AsyncStorage.getItem(apiUrlKey),
         AsyncStorage.getItem(themeKey)
       ]);
-      const resolvedApiUrl = __DEV__ && storedApiUrl ? storedApiUrl : defaultApiUrl;
+      // Gated on showDevTools rather than __DEV__ so that a URL saved once
+      // during development cannot silently outrank EXPO_PUBLIC_API_URL later.
+      // That override is invisible from the UI when the dev card is hidden, so
+      // the app would just fail to reach the server with no explanation.
+      const resolvedApiUrl = showDevTools && storedApiUrl ? storedApiUrl : defaultApiUrl;
       setApiUrl(resolvedApiUrl);
       if (storedTheme === "DARK") setDark(true);
       if (pendingLogoutToken) {
@@ -221,7 +225,7 @@ export default function App() {
   async function saveSession(nextToken: string, nextUser: CurrentUser) {
     const resolvedApiUrl = normalizeApiUrl(apiUrl);
     await SecureStore.setItemAsync(tokenKey, nextToken);
-    if (__DEV__) await AsyncStorage.setItem(apiUrlKey, resolvedApiUrl);
+    if (showDevTools) await AsyncStorage.setItem(apiUrlKey, resolvedApiUrl);
     clearAccountState();
     setApiUrl(resolvedApiUrl);
     setToken(nextToken);
